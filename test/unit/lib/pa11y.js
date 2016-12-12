@@ -112,14 +112,15 @@ describe('lib/pa11y', function() {
 
 	});
 
-	describe('.pa11y(options)', function() {
-		var instance, options;
+	describe('.pa11y(url, options)', function() {
+		var instance, url, options;
 
 		beforeEach(function() {
 			options = {
 				foo: 'bar'
 			};
-			instance = pa11y(options);
+			url = 'http:\/\/example.com';
+			instance = pa11y(url, options);
 		});
 
 		it('should default the options', function() {
@@ -137,7 +138,7 @@ describe('lib/pa11y', function() {
 				'baz'
 			];
 			extend.reset();
-			pa11y(options);
+			pa11y(url, options);
 			assert.deepEqual(extend.firstCall.returnValue.ignore, [
 				'foo',
 				'bar',
@@ -162,16 +163,24 @@ describe('lib/pa11y', function() {
 		it('should throw an error if `options.standard` is invalid', function() {
 			options.standard = 'foo';
 			assert.throws(function() {
-				pa11y(options);
+				pa11y(url, options);
 			}, 'Standard must be one of Section508, WCAG2A, WCAG2AA, WCAG2AAA');
+		});
+
+		it('should throw an error if the url is a relative filepath', function() {
+			url = 'file:\/\/./local-file.html'
+			assert.throws(function() {
+				pa11y(url, options);
+			}, 'Local Url given as input must have absolute paths.');
 		});
 
 	});
 
 	describe('Truffler test function', function() {
-		var expectedResults, options, runResults, testFunction;
+		var expectedResults, url, options, runResults, testFunction;
 
 		beforeEach(function(done) {
+			url = 'http:\/\/example.com';
 			options = {
 				ignore: [
 					'BAZ',
@@ -181,7 +190,7 @@ describe('lib/pa11y', function() {
 				wait: 0,
 				rootElement: null
 			};
-			pa11y(options);
+			pa11y(url, options);
 
 			expectedResults = {
 				messages: [
@@ -210,7 +219,7 @@ describe('lib/pa11y', function() {
 			};
 
 			truffler.reset();
-			pa11y(options);
+			pa11y(url, options);
 			testFunction = truffler.firstCall.args[1];
 			testFunction(phantom.mockBrowser, phantom.mockPage, extend.secondCall.returnValue, function() {
 				assert.calledOnce(options.beforeScript);
@@ -229,7 +238,7 @@ describe('lib/pa11y', function() {
 				}
 			};
 			truffler.reset();
-			pa11y(options);
+			pa11y(url, options);
 			testFunction = truffler.firstCall.args[1];
 			testFunction(phantom.mockBrowser, phantom.mockPage, extend.secondCall.returnValue, function() {
 				assert.calledWith(options.log.debug, 'Running beforeScript');
@@ -266,12 +275,13 @@ describe('lib/pa11y', function() {
 		describe('when a remote HTML CodeSniffer is specified', function() {
 
 			beforeEach(function(done) {
+				url = 'http:\/\/example.com';
 				options = {
 					htmlcs: 'http://foo.com/HTMLCS.js'
 				};
 				truffler.reset();
 				phantom.mockPage.injectJs.reset();
-				pa11y(options);
+				pa11y(url, options);
 				testFunction = truffler.firstCall.args[1];
 				testFunction(phantom.mockBrowser, phantom.mockPage, extend.secondCall.returnValue, done);
 			});
@@ -388,7 +398,7 @@ describe('lib/pa11y', function() {
 				}
 			};
 			truffler.reset();
-			pa11y(options);
+			pa11y(url, options);
 			testFunction = truffler.firstCall.args[1];
 			testFunction(phantom.mockBrowser, phantom.mockPage, extend.secondCall.returnValue, function() {
 				assert.calledWith(options.log.debug, 'Waiting for ' + options.wait + 'ms');
@@ -418,15 +428,16 @@ describe('lib/pa11y', function() {
 	});
 
 	describe('testPage function', function() {
-		var expectedResults, options, testFunction;
+		var expectedResults, url, options, testFunction;
 
 		beforeEach(function(done) {
+			url = 'http:\/\/example.com';
 			options = {
 				log: {
 					debug: sinon.spy()
 				}
 			};
-			pa11y(options);
+			pa11y(url, options);
 
 			expectedResults = {
 				documentTitle: 'quux'

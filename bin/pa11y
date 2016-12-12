@@ -12,7 +12,7 @@ runProgram(program);
 
 function configureProgram(program) {
 	program.version(pkg.version)
-		.usage('[options] <url>')
+		.usage('<url> [options]')
 		.option(
 			'-s, --standard <name>',
 			'the accessibility standard to use: Section508, WCAG2A, WCAG2AA (default), WCAG2AAA'
@@ -86,7 +86,7 @@ function runProgram(program) {
 	var options = processOptions(program);
 	options.log.begin(program.url);
 	try {
-		var test = pa11y(options);
+		var test = pa11y(program.url, options);
 		test.run(program.url, function(error, results) {
 			if (error) {
 				options.log.error(error.stack);
